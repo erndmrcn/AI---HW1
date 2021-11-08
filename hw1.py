@@ -23,38 +23,6 @@ class Node:
         self.cost = cost
         
 
-# Queue for BFS
-class bfsQueue:
-    def __init__(self):
-        open = 0
-
-# Queue for DLS, IDDLFS
-#class LIFO:
-#    def __init__(self):
-
-
-# Queue for UCS
-#class priorityQueue:
-#    def __init__(self):
-
-
-
-#def initialize():
-#    return []
-def enqueue(queue, index, value):
-    queue.insert(index, value)
-
-
-
-def dequeue(queue, index):
-    return queue.pop(index)
-
-
-# FIFO Queue
-# LIFO Queue - Stack
-# Priority Queue
-
-
 # read inputs
 def read(fileName):
     global startNode, targetNode
@@ -80,16 +48,6 @@ def read(fileName):
             costs.append(int(result[2]))
         
     f.close()
-
-
-# write outputs
-def write():
-    print()
-
-
-# tree-search
-def treeSearch():
-    return
 
 
 def expand(state):
@@ -151,8 +109,36 @@ def IDDFS():
     return
 
 
+def getCost(e):
+    return e.cost
+
+
+def sortFrontier(frontier):
+    if len(frontier) <= 1:
+        return frontier
+    
+    return frontier.sort(reverse=False, key=getCost)
+    
+
 def UCS():
-    return
+    frontier = [Node(startNode, None, 0)]
+    result = []
+    processed = []
+
+    while frontier:
+        sortFrontier(frontier)
+        currentNode = frontier[0]
+        frontier = frontier[1:]
+        processed.append(currentNode.state)
+
+        if  currentNode.state == targetNode:
+            result = printPath(currentNode)
+            return result, processed, currentNode.cost
+
+        frontier.extend(expand(currentNode))
+
+    return None
+
 
 
 def UnInformedSearch(method_name, problem_fileName, maximum_depth_limit):
@@ -166,7 +152,8 @@ def UnInformedSearch(method_name, problem_fileName, maximum_depth_limit):
         costs.clear()
         startNode = ""
         targetNode = "" 
-        result = result[::-1]   
+        result = result[::-1]
+
         print(len(processed))  
         return result, processed, bfs_depth
 
@@ -175,4 +162,15 @@ def UnInformedSearch(method_name, problem_fileName, maximum_depth_limit):
     elif method_name == "IDDFS":
         IDDFS()
     elif method_name == "UCS":
-        UCS()
+        read(problem_fileName)
+        result, processed, cost= UCS()
+        
+        city1.clear()
+        city2.clear()
+        costs.clear()
+        startNode = ""
+        targetNode = "" 
+        result = result[::-1]
+           
+        print(len(processed))  
+        return result, processed, cost, bfs_depth
