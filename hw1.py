@@ -5,15 +5,14 @@
 # Homework1 - Search Problems
 
 
-# data structures that will be used through this assignment
-
+# data structures and variables that will be used through this assignment
 city1 = []
 city2 = []
 costs = []
-global totalCost
 
 # Node for tree search
 class Node:
+
     def __init__(self, state, parent, cost):
         # node state
         self.state = state
@@ -25,6 +24,7 @@ class Node:
 
 # read inputs
 def read(fileName):
+
     global startNode, targetNode
 
     with open(fileName, 'r') as f:
@@ -50,8 +50,14 @@ def read(fileName):
     f.close()
 
 
+# finding next state given current state
+# multiple paths for the same nodes accepted and both added -> additional computation
+# one can go to the node where he has come from -> infinite loop
 def expand(state):
     children = []
+
+    # find the first state that can be reached from the current state
+    # for both directions
     for i in range(0, len(city1)):
         if city1[i] == state.state: 
             temp = Node(city2[i], state, state.cost + costs[i])
@@ -63,6 +69,7 @@ def expand(state):
     return children
 
 
+# find the path to the result Node 
 def printPath(node):
     global bfs_depth
     result = []
@@ -76,16 +83,22 @@ def printPath(node):
     
     return result
 
+
 # Breadth-First Search
 def BFS():
+
     root = Node(startNode, None, 0)
+    
+    # list of nodes that are to be expanded
     frontier = []
     frontier.append(root)
+
     result = []
     processed = []
-    explored = []
 
     while frontier:
+
+        # FIFO Queue
         currentNode = frontier[0]
         frontier = frontier[1:]
         processed.append(currentNode.state)
@@ -97,38 +110,88 @@ def BFS():
         frontier.extend(expand(currentNode))
     
     return None
+    
+
+def recursiveDLS(result, processed, root, depthLimit):
+
+    processed.append(root.state)
+    result.append(root.state)
+    frontier = []
+
+    if root.state == targetNode:
+        return result, processed, len(result) - 1
+    
+    if  depthLimit == 0:
+        return None
+    
+    frontier = expand(root)
+    for item in frontier:
+        if recursiveDLS(result, processed, item, depthLimit-1):
+            return result, processed, len(result) - 1        
+        result.pop()
+    return None 
 
 
 # Depth-Limited Search
-def DLS():
-    return
+def DLS(depthLimit):
+
+    result = []
+    processed = []
+    root = Node(startNode, None, 0)
+
+    # starting from the 0 depth to max_depth_limit
+    # if a path with depth less than the max_depth_limit
+    # can be found, return that path -> eliminates redundant paths
+    for i in range(0, depthLimit):
+        if recursiveDLS(result, processed, root, i):
+            return result, processed, len(result) - 1
+        else:
+            result.pop()
 
 
 # Iterative Deepening Depth-First Search
-def IDDFS():
-    return
+def IDDFS(maxLimit):
+    # starting from 0 try each depth limit
+    for i in range(maxLimit):
+        result = DLS(maxLimit)
+        if result != None:
+            return result
 
 
+# sort helper
 def getCost(e):
     return e.cost
 
 
+# sorting
+# preparing for priority queue
 def sortFrontier(frontier):
+
     if len(frontier) <= 1:
         return frontier
     
     return frontier.sort(reverse=False, key=getCost)
     
 
+# Uniform-cost search
 def UCS():
+
+    # first node to be expanded
     frontier = [Node(startNode, None, 0)]
+
     result = []
     processed = []
 
     while frontier:
+        # sort nodes that are to be expanded
+        # comparing their costs
         sortFrontier(frontier)
+
+        # Priority Queue
+        # take node with min cost
         currentNode = frontier[0]
         frontier = frontier[1:]
+
         processed.append(currentNode.state)
 
         if  currentNode.state == targetNode:
@@ -142,6 +205,7 @@ def UCS():
 
 
 def UnInformedSearch(method_name, problem_fileName, maximum_depth_limit):
+
     if  method_name == "BFS":
         read(problem_fileName)
 
@@ -154,13 +218,19 @@ def UnInformedSearch(method_name, problem_fileName, maximum_depth_limit):
         targetNode = "" 
         result = result[::-1]
 
-        print(len(processed))  
         return result, processed, bfs_depth
 
     elif method_name == "DLS":
-        DLS()
+
+        read(problem_fileName)
+        return DLS(maximum_depth_limit)
+
     elif method_name == "IDDFS":
-        IDDFS()
+
+        read(problem_fileName)
+        return IDDFS(maximum_depth_limit)
+    
+
     elif method_name == "UCS":
         read(problem_fileName)
         result, processed, cost= UCS()
@@ -172,5 +242,4 @@ def UnInformedSearch(method_name, problem_fileName, maximum_depth_limit):
         targetNode = "" 
         result = result[::-1]
            
-        print(len(processed))  
         return result, processed, cost, bfs_depth
