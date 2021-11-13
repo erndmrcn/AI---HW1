@@ -54,6 +54,8 @@ def read(fileName):
 # multiple paths for the same nodes accepted and both added -> additional computation
 # one can go to the node where he has come from -> infinite loop
 def expand(state):
+
+    global children 
     children = []
 
     # find the first state that can be reached from the current state
@@ -142,12 +144,13 @@ def DLS(depthLimit):
     # starting from the 0 depth to max_depth_limit
     # if a path with depth less than the max_depth_limit
     # can be found, return that path -> eliminates redundant paths
-    for i in range(0, depthLimit):
+    for i in range(0, depthLimit+1):
         if recursiveDLS(result, processed, root, i):
             return result, processed, len(result) - 1
         else:
             result.pop()
 
+    return None
 
 # Iterative Deepening Depth-First Search
 def IDDFS(maxLimit):
@@ -207,8 +210,8 @@ def UCS():
 def UnInformedSearch(method_name, problem_fileName, maximum_depth_limit):
 
     if  method_name == "BFS":
-        read(problem_fileName)
 
+        read(problem_fileName)
         result, processed = BFS()
         
         city1.clear()
@@ -223,17 +226,32 @@ def UnInformedSearch(method_name, problem_fileName, maximum_depth_limit):
     elif method_name == "DLS":
 
         read(problem_fileName)
-        return DLS(maximum_depth_limit)
+        result = DLS(maximum_depth_limit)
+
+        city1.clear()
+        city2.clear()
+        costs.clear()
+        startNode = ""
+        targetNode = "" 
+
+        return result
 
     elif method_name == "IDDFS":
 
         read(problem_fileName)
-        return IDDFS(maximum_depth_limit)
+        result = IDDFS(maximum_depth_limit)
+
+        city1.clear()
+        city2.clear()
+        costs.clear()
+        startNode = ""
+        targetNode = "" 
     
+        return result
 
     elif method_name == "UCS":
         read(problem_fileName)
-        result, processed, cost= UCS()
+        result, processed, cost = UCS()
         
         city1.clear()
         city2.clear()
@@ -242,4 +260,4 @@ def UnInformedSearch(method_name, problem_fileName, maximum_depth_limit):
         targetNode = "" 
         result = result[::-1]
            
-        return result, processed, cost, bfs_depth
+        return result, processed, bfs_depth, cost
